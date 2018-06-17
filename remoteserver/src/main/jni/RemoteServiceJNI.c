@@ -40,9 +40,13 @@ JNIEXPORT jint JNICALL Java_com_example_remoteserver_RemoteService_NanoOpen
  * Method:    NanoPollEvent
  * Signature: ([BI)I
  */
+#if 1 //byte[]
 JNIEXPORT jint JNICALL Java_com_example_remoteserver_RemoteService_NanoPollEvent
   (JNIEnv *env, jobject thiz, jbyteArray dataBuf, jint size){
-
+#else //ByteBuffer
+JNIEXPORT jint JNICALL Java_com_example_remoteserver_RemoteService_NanoPollEvent
+        (JNIEnv *env, jobject thiz, jobject dataBuf, jint size){
+#endif
    /*Jni层接收到Java层传递过来的byte[]数组，一般有2个函数来获取它的值，
    一个 GetByteArrayRegion，另一个是 GetByteArrayElements ，
    前者是进行值拷贝，将Java端数组的数据拷贝到本地的数组中，
@@ -52,28 +56,40 @@ JNIEXPORT jint JNICALL Java_com_example_remoteserver_RemoteService_NanoPollEvent
    使用完毕后指针一定要记得通过ReleaseByteArrayElements进行释放，
    否则会产生内存泄露。*/
 
-    unsigned char* local = (*env)->GetByteArrayElements(env, dataBuf, NULL);
+#if 1  //byte[]
+    jboolean isCopy;
+    unsigned char* local = (*env)->GetByteArrayElements(env, dataBuf, &isCopy);
     if(!local){
         LOGW("invalid buff\n");
         return -1;
     }
 
-    if ((*env)->ExceptionCheck(env)) return -1;
-
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ReleaseByteArrayElements(env,dataBuf,local,0);
+        return -1;
+    }
 
     int ret = Nano_PollEvent(local,size);
-
-    //一定要释放减少引用计数
+    //使用完一定要释放减少引用计数
     (*env)->ReleaseByteArrayElements(env,dataBuf,local,0);
 
+    return ret;
 
-    /*第三种Direct Buffer方式*/
-    /*
-    unsigned char* local = (unsigned char*)(*env)->GetDirectBufferAddress(env, dataBuf);
+#else  //需要传递ByteBuffer对象，这个方式还有问题！
+
+    /*第三种Direct Buffer方式,构造/析构/维护这块共享内存的代价比较大，适合传输大量数据*/
+    unsigned char* local  = (unsigned char*)(*env)->GetDirectBufferAddress(env, dataBuf);
+    if(local == NULL){
+        LOGE("GetDirectBufferAddress Error!");
+    }
+
     int ret = Nano_PollEvent(local,size);
     LOGI("Need size = %d , Get data size = %d",size,ret);
-    */
+
     return ret;
+
+#endif
+
   }
 
 /*

@@ -4,7 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.nfc.Tag;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -208,7 +210,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void alert(String str) {
+        //解决在子线程中调用Toast的异常情况处理(还是有异常)
+        //Looper.prepare();
         Toast.makeText(this, str, 0).show();
+        //Looper.loop();
     }
 
     @Override
@@ -307,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
          * 按键事件函数
          */
         public void KeyEvent(int keycode) throws RemoteException {
-            //Nano_Printf(String.format("got keycode %x", keycode));
+            Log.i("nano-client ",String.format("got keycode %x", keycode));
             //textView1.setText(String.format("got keycode %x", keycode));
         }
     };

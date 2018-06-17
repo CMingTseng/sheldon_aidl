@@ -22,7 +22,7 @@ add_library(RemoteServiceJNI SHARED
 
 #特别注意，一个so对应一个link，生成在intermediates/cmake/目录下
 target_link_libraries(
- RemoteServiceJNI
+ RemoteServiceJNI #要生成的so名，以下是需要依赖的库
  nano
  log
  android

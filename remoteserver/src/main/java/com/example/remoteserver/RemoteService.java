@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Toast;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,12 +48,12 @@ public class RemoteService extends Service {
         // Used to load the 'native-lib' library on application startup.
         System.loadLibrary("RemoteServiceJNI");
         pthreadState = true;
-        //DataThread datathread = new DataThread();
-        //datathread.start();
+        DataThread datathread = new DataThread();
+        datathread.start();
         Nano_Printf("service onCreate");
 
         Nano_Printf(String.format("<%s>",stringFromJNI()));
-        // mMyActivity = getActivity();
+        //mMyActivity = getActivity();
     }
 
     /*-----------------------------------------------------------------------------
@@ -136,7 +137,7 @@ public class RemoteService extends Service {
     Return 		:
     Describe		:
     -------------------------------------------------------------------------------*/
-    private void Nano_VoiceEvent(byte[] data,int datalen)
+    private void Nano_VoiceEvent(byte[] data, int datalen)
     {
         if(remoteCallbackList == null) {
             Nano_Printf("remoteCallbackList is null");
@@ -184,8 +185,11 @@ public class RemoteService extends Service {
     /**
      * 以小端模式将byte[]/char转成int
      */
-    public static int bytesToIntLittle(byte[] src,int offset) {
+    public static int bytesToIntLittle(byte[] src, int offset) {
         int value;
+        //byte[] dest = new byte[src.remaining()];  //byte[] b = new byte[bb.capacity()]  is OK
+        //src.get(dest, 0, dest.length);
+
         value = (int) ((src[offset] & 0xFF)
                 | ((src[offset + 1] & 0xFF) << 8)
                 | ((src[offset + 2] & 0xFF) << 16)
@@ -197,6 +201,10 @@ public class RemoteService extends Service {
      */
     public static int bytesToIntBig(byte[] src, int offset) {
         int value;
+
+        //byte[] dest = new byte[src.remaining()];  //byte[] b = new byte[bb.capacity()]  is OK
+        //src.get(dest, 0, dest.length);
+
         value = (int) (((src[offset] & 0xFF) << 24)
                 | ((src[offset + 1] & 0xFF) << 16)
                 | ((src[offset + 2] & 0xFF) << 8)
@@ -222,7 +230,9 @@ public class RemoteService extends Service {
                 {
                     int  type = -1;
                     byte appbuf[] = new byte[2048];
-                    type = NanoPollEvent(appbuf,appbuf.length);
+                    //ByteBuffer bytebuf = ByteBuffer.wrap(appbuf);
+
+                    type = NanoPollEvent(appbuf,appbuf.length); //appbuf.length \ bytebuf.capacity()
                     if(type == 4) {         /*按键事件*/
                         Nano_KeyEvent(bytesToIntLittle(appbuf,0));
                     }else if(type > 4) {   /*语音事件*/
@@ -329,7 +339,8 @@ public class RemoteService extends Service {
     /*nanosic : native interface*/
     public native String   stringFromJNI();
     public native int      NanoOpen();
-    public native int      NanoPollEvent(byte[] buf,int size);
+    //public native int      NanoPollEvent(ByteBuffer buf, int size);
+    public native int      NanoPollEvent(byte[] buf, int size);
     public native boolean  NanosetSpeakerOn(boolean state);
     public native boolean  NanodialCall(String phoneNumber);
     public native boolean  NanoincomingCall(String phoneNumber);
