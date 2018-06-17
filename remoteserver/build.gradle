@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        applicationId "com.example.remoteserver"
+        minSdkVersion 23
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
+        // 使用Cmake工具
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+                //生成多个版本的so文件
+                abiFilters 'armeabi-v7a' //,'arm64-v8a','x86','x86_64'
+            }
+        }
+
+/*     //gradle3.0以上已经不支持该方式
+        ndk {
+            moduleName "libRemoteServiceJNI"            //指定生成的so文件名
+            ldLibs     "log", "z", "m"                  //添加log库
+            abiFilters "armeabi", "armeabi-v7a", "x86"  //cpu的类型
+        }
+*/
+    }
+
+    // 配置CMakeLists.txt路径
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt" //编译后so文件的名字
+        }
+    }
+/*
+    sourceSets {
+        main {
+            jni.srcDirs = ['src/main/jni','src/main/jni/include']
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+*/
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation project(':remoteservicecontract')//导入资源库
+}

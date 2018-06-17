@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/registerCallback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="注册回调" />
+
+    <Button
+        android:id="@+id/unregisterCallback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="注销回调" />
+
+    <Button
+        android:id="@+id/setSpeakerOn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="通知手柄切换通道" />
+
+    <Button
+        android:id="@+id/dialCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="通知手柄发起呼叫" />
+
+    <Button
+        android:id="@+id/incomingCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="通知手柄来电振铃" />
+
+    <Button
+        android:id="@+id/answerCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="通知手柄接听来电" />
+
+    <Button
+        android:id="@+id/hangupCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="通知手柄挂断通话" />
+
+</LinearLayout>
